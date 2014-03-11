@@ -1,0 +1,288 @@
+<html>
+<head>
+<title>MinseSweeper</title>
+<script language="javascript">
+//some instructions
+alert("Hello!! This is a version of MineSweeper created by Apostolos Siokas for a school final project.");
+alert("This is a short tutorial to help you (I assume that you know how to play the real MineSweeper).");
+alert("1st: If you hit the bomb the game ends and you have to started again from the proper button.\n2nd: If you open all boxes which not containing a bomb you have to press Ctrl+Click in the bomb boxes and when you are ready press the check button to see if you win \n3rd: Place the flags only in the box in which you are very SURE that contain bombs. \n4rth: You CAN NOT cheat!!");
+
+//declare variables
+var counter=0;//This will help me to check if the bombs and the flags are in the same location
+var cheat=0;//This prevents if the user cheats by marking with flags many boxes
+var playbutton=false;// This will help me to block the images before the game starts and after finishes.
+var minesum;//the number of the mines
+var count=0;//
+var i,j,g,k,x,y,u;
+var bombs=new Array(); //Make a new array to hold the location of the bombs
+var nums=new Array(); //Make a new array to hold every number form 1 to 100 to pick as many numbers as the user want to be the bombs.
+var imgs=new Array();
+var check=new Array();// Array containing true or false values for bombs
+var win=new Array();//Array checking to win
+for (u=1;u<=100;u++)
+{
+	win[u]=false;//make everything in the win array 
+}
+
+function randombomb(minesnum)//The function that checks if the numbers are the same. (The value in parenthesis is sent by the onclick event from the button and says the user's input for the bombs)
+{		
+/*
+My Idea to generate unique eandoom numbers is to fill in an array with all numbers between 1 and 100 and after that I will generate randoom numbers from 1 to 100 and I will take the element (that has the number I just generated) of the array, I placed it in a new array and finally in I replaced the number I just took with 0. In this way I tried to mark this element as taken. After that I have to run a forever loop that stops only if no elements in the final array have the number 0 
+*/
+	
+	document.getElementById("divarea").innerHTML="You just started the game with " + minesnum + " bombs!";
+	
+	for (i=1;i<=100;i++)//This loop sets all numbers from 1 to 100 in the nums[] array
+	{
+		nums[i]=i;
+		check[i]=false;
+	}
+	
+	
+	for(j=1;j<=minesnum;j++) //This loop picks a new number and checks it if is it the same with the previous numbers
+	{
+		var x = get_rand_bomb(); //I jusr called the function that generates randoom numbers and I stored the result in the x variable
+		
+		while(true)// A forever loop that stops only if there is no 0 in the running element 
+		{
+			if (nums[x]==0)// Checks if there is a 0 in the array and regenerates
+			{
+				var x = get_rand_bomb();
+				bombs[j]=nums[x];
+			}
+			else // if not, just place the value of the element in the finall array, zeroize the element and break the loop
+			{
+				bombs[j]=nums[x];
+				nums[x]=0;
+				break;
+			}
+		}
+	}
+	
+	for(y=1;y<=minesnum;y++) 
+	{
+		var qq=bombs[y];
+		check[qq]=true;
+	}
+	playbutton=true;
+}
+
+
+function get_rand_bomb() //Whenever I call this function returns a randoom number
+{
+	var rand_bomb = Math.floor(Math.random()*100)+1;//Draw a randoom number from 1 to 100
+	return rand_bomb;
+}
+
+function bombss(e,img,x)
+{	
+	
+	if(playbutton)//if the game is started
+	{
+		var count=0;
+		var c = parseInt(x); //make the x value integer
+		
+		if(e.ctrlKey)//finding if the conrtol key is presed
+		{
+			img.src="Images/flag.jpg";
+			win[c]=true;
+			cheat++;//increase the cheat value
+			document.getElementById("divarea").innerHTML="You just entered a flag or a mark which indicates the location of the bomb";
+			img.onclick=null;//make this image not clickable 
+		}
+		else
+		{
+		
+			if(check[c])//checkf if the check array has the true value in the box that the user selected. In other words checks if the user hit bomb. 
+			{
+				alert("BAAAAAAAAAANNNNNGGGGG................You Loose..................");//a pop up window showing you loose
+				img.src="Images/bomb.jpg";//replace the image with the bomb image
+				document.getElementById("divarea").innerHTML="You loose. To start the a new game you have to press the Restart button!";//replace the divarea text
+				playbutton=false;
+			}
+			
+			
+			else if(c%10==0)//checks if it is in the right last row verticaly 
+			{	
+				if(check[c-1])//checks if the previous image contains a bomb
+				{
+					count++;//increases the count variable by one
+				}
+				if(check[c+10])//the same with previous
+				{
+					count++;
+				}
+				if(check[c+9])
+				{
+					count++;
+				}		
+				if(check[c-10])
+				{
+					count++;
+				}
+				if(check[c-11])
+				{
+					count++;
+				}	
+				img.src="Images/Digits/digit"+count+".jpg";
+				document.getElementById("divarea").innerHTML="There are " + count + " bombs in the surrounded boxes!";
+				img.onclick=null;
+				if(count==0)
+				{
+					//zerobox(img,c);
+				}
+				
+			}
+			else if(c%10==1)//checks if it is the left first row verticly
+			{
+				if(check[c+1])
+				{
+					count++;
+				}
+				if(check[c-9])
+				{
+					count++;
+				}
+				if(check[c-10])
+				{
+					count++;
+				}		
+				if(check[c+10])
+				{
+					count++;
+				}
+				if(check[c+11])
+				{
+					count++;
+				}		
+				img.src="Images/Digits/digit" + count + ".jpg";
+				document.getElementById("divarea").innerHTML="There are " + count + " bombs in the surrounded boxes!";
+				img.onclick=null;
+				if(count==0)
+				{
+					//zerobox(img,c);
+				}
+			}
+			else//for all the other contitions
+			{
+				
+					if(check[c+1])
+					{
+						count++;
+					}
+					if(check[c-1])
+					{
+						count++;
+					}
+					if(check[c+9])
+					{
+						count++;
+					}
+					if(check[c+10])
+					{
+						count++;
+					}
+					if(check[c+11])
+					{
+						count++;
+					}
+					if(check[c-9])
+					{
+						count++;
+					}
+					if(check[c-10])
+					{
+						count++;
+					}
+					if(check[c-11])
+					{
+						count++;
+					}
+				img.src="Images/Digits/digit"+count+".jpg";
+				document.getElementById("divarea").innerHTML="There are " + count + " bombs in the surrounded boxes!";
+				img.onclick=null;
+				if(count==0)
+				{
+					
+				}
+			}
+		}
+}
+		
+
+}
+function checkifwin(minesnum)
+{
+	if(minesnum==cheat)//checks if the numbers of mines are equal with the number of flags
+	{
+		for (var o=1;o<=100;o++)
+		{
+			if(check[o])//checks if there is a bomb
+			{
+				if(win[o])//checks if there is a flag in that bomb
+				{
+					counter++;//increase this value by 1
+				}
+			}
+		}
+		if(counter==minesnum)//check if all flas are at the same location with the bombs
+		{
+			alert("Congratulations!!!!!!You Win!!!!!!!");
+			playbutton=false;//make the images not clicable
+		}
+		else
+		{
+			alert("You are wrong. You loose");
+		}
+	}
+	else
+	{
+		alert("You have more or less flags than the number of bombs.");
+	}
+	
+}
+
+</script>
+</head>
+
+<body>
+<form id="form1" name="form1" method="post" action="">
+  <div align="center">
+    <p>Enter the number of mines
+      <label for="numbers_of_mines"></label>
+      <input type="text" name="number_of_mines" id="number_of_mines" /> 
+      	<input type="button" name="Play" id="Play" value="Play" onClick="randombomb(document.form1.number_of_mines.value)"/>
+      <input type="button" name="restart" id="restart" value="Restart" onClick="window.location.reload()" />
+      <input type="button" name="check" id="check" value="Check" onClick="checkifwin(document.form1.number_of_mines.value)" />
+      <img src="Images/em.jpg" /> <!-- I added an empty(blank) image before the real images because I want the name of the first real image to be document.images[1] instead of {0}  -->
+    </p>
+  </div>
+  <label for="number_of_bombs"></label>
+</form>
+<p>
+<div id="divarea" align="center">
+  <div align="center">This is my version of MineSweeper </div>
+</div>
+
+<p align="center">
+  
+<script language="javascript">
+var w;
+for (w=1;w<=100;w++) //to input the images
+{
+	if (w%10==0) //to change line after 10 images
+	{
+		document.write("<img src='Images/clover.jpg' onclick='bombss(event, this, "+w+")' />"); //Input images only if the value of i divided by 10 have remainder 0
+		document.writeln("<br />"); //Change line
+	}
+	else
+	{
+		document.write("<img src='Images/clover.jpg' onclick='bombss(event, this, "+w+")' />") //Insert images for the rest i's
+	}
+}
+</script>
+</p>
+
+</body>
+</html>
+
